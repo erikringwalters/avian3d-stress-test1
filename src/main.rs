@@ -14,10 +14,13 @@ use bevy::{
 // Amount of cubes to spawn (^3)
 const CUBE_AXIS_AMOUNT:i32 = 10;
 
-// Physics refresh rate
+// Physics tick rate
 const PHYSICS_HZ: f64 = 60.0;
 
+// Environment
 const FLOOR_RADIUS: f32 = 100.0;
+
+// Player Controller
 const MOVEMENT_SPEED: f32 = 10.;
 const ROTATE_SPEED: f32 = 0.05;
 const JUMP_SPEED: f32 = 75.0;
@@ -88,7 +91,7 @@ fn setup(
     let capsule_half_length = 0.5;
     let capsule_length = capsule_half_length * 2.0;
 
-    let cube_half_size = 0.45;
+    let cube_half_size = 0.4;
     let cube_size = cube_half_size * 2.0;
 
     let starting_position_offset = 10.0;
@@ -123,7 +126,7 @@ fn setup(
     ));
 
 
-    // let color_step = 1.0 / CUBE_AXIS_AMOUNT as f32;
+    let color_step = 1.0 / CUBE_AXIS_AMOUNT as f32;
 
     // Cubes
     for i in 0..CUBE_AXIS_AMOUNT {
@@ -134,14 +137,14 @@ fn setup(
                         half_size: Vec3::new(cube_half_size, cube_half_size, cube_half_size),
                     })),
                     MeshMaterial3d(materials.add(Color::from(
-                        css::SKY_BLUE
+                        // css::SKY_BLUE
 
-                        // Srgba {
-                        // red: i as f32 * color_step,
-                        // green: j as f32 * color_step,
-                        // blue: k as f32 * color_step,
-                        // alpha: 1.0,
-                    // }
+                        Srgba {
+                        red: i as f32 * color_step,
+                        green: j as f32 * color_step,
+                        blue: k as f32 * color_step,
+                        alpha: 1.0,
+                    }
                 ))),
                     Transform::from_xyz(
                         i as f32 + cube_half_size - (CUBE_AXIS_AMOUNT as f32 / 2.0),
