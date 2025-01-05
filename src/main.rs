@@ -151,7 +151,7 @@ fn setup(
                         k as f32 + starting_position_offset / 2.0,
                     ),
                     RigidBody::Dynamic,
-                    Mass(10.0),
+                    Mass(1.0),
                     Friction::new(0.9),
                     Collider::cuboid(cube_size, cube_size, cube_size),
                 ));
@@ -170,7 +170,7 @@ fn setup(
             Transform::from_xyz(0.0, 2.0, 0.0),
             RigidBody::Dynamic,
             Collider::capsule(capsule_radius, capsule_length),
-            Mass(10.),
+            Mass(10.0),
             GravityScale(2.0),
             ExternalImpulse::default(),
             LockedAxes::ROTATION_LOCKED,
