@@ -11,6 +11,10 @@ use bevy::{
     winit::{UpdateMode, WinitSettings},
 };
 
+// Amount of cubes to spawn (^3)
+const CUBE_AXIS_AMOUNT:i32 = 10;
+
+// Physics refresh rate
 const PHYSICS_HZ: f64 = 60.0;
 
 const FLOOR_RADIUS: f32 = 100.0;
@@ -19,6 +23,7 @@ const ROTATE_SPEED: f32 = 0.05;
 const JUMP_SPEED: f32 = 75.0;
 const GROUND_DISTANCE: f32 = 1.01;
 const JUMP_COOLDOWN: f32 = 0.1;
+
 
 #[derive(Component, Debug)]
 pub struct Velocity {
@@ -83,7 +88,7 @@ fn setup(
     let capsule_half_length = 0.5;
     let capsule_length = capsule_half_length * 2.0;
 
-    let cube_half_size = 0.5;
+    let cube_half_size = 0.45;
     let cube_size = cube_half_size * 2.0;
 
     let starting_position_offset = 10.0;
@@ -105,6 +110,8 @@ fn setup(
         Restitution::new(0.1),
     ));
 
+    let light_distance = 1000.0;
+
     // Directional Light
     commands.spawn((
         DirectionalLight {
@@ -112,32 +119,35 @@ fn setup(
             shadows_enabled: true,
             ..Default::default()
         },
-        Transform::default().looking_at(-Vec3::Y, Vec3::Z),
+        Transform::from_xyz(light_distance, light_distance, -light_distance).looking_at(-Vec3::Y, Vec3::Z),
     ));
 
-    let cube_axis_amount = 10;
-    let color_step = 1.0 / cube_axis_amount as f32;
+
+    // let color_step = 1.0 / CUBE_AXIS_AMOUNT as f32;
 
     // Cubes
-    for i in 0..cube_axis_amount {
-        for j in 0..cube_axis_amount {
-            for k in 0..cube_axis_amount {
+    for i in 0..CUBE_AXIS_AMOUNT {
+        for j in 0..CUBE_AXIS_AMOUNT {
+            for k in 0..CUBE_AXIS_AMOUNT {
                 commands.spawn((
                     Mesh3d(meshes.add(Cuboid {
                         half_size: Vec3::new(cube_half_size, cube_half_size, cube_half_size),
                     })),
-                    MeshMaterial3d(materials.add(Color::from(Srgba {
-                        red: i as f32 * color_step,
-                        green: j as f32 * color_step,
-                        blue: k as f32 * color_step,
-                        alpha: 1.0,
-                    }))),
+                    MeshMaterial3d(materials.add(Color::from(
+                        css::SKY_BLUE
+
+                        // Srgba {
+                        // red: i as f32 * color_step,
+                        // green: j as f32 * color_step,
+                        // blue: k as f32 * color_step,
+                        // alpha: 1.0,
+                    // }
+                ))),
                     Transform::from_xyz(
-                        i as f32 + cube_half_size - (cube_axis_amount as f32 / 2.0),
+                        i as f32 + cube_half_size - (CUBE_AXIS_AMOUNT as f32 / 2.0),
                         j as f32 + starting_position_offset,
                         k as f32 + starting_position_offset / 2.0,
-                    )
-                    .with_rotation(Quat::from_rotation_y(0.125 * std::f32::consts::PI)),
+                    ),
                     RigidBody::Dynamic,
                     Mass(10.0),
                     Friction::new(0.9),
@@ -176,7 +186,7 @@ fn setup(
     let child_camera = commands
         .spawn((
             Camera3d::default(),
-            Transform::from_xyz(0., 2.0, -10.0).looking_at(Vec3::ZERO, Dir3::Y),
+            Transform::from_xyz(0., 2.0, -10.0).looking_at(Vec3{x: 0.0, y: 1.0, z: 0.0}, Dir3::Y),
         ))
         .id();
 
