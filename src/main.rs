@@ -125,8 +125,7 @@ fn setup(
         Transform::from_xyz(light_distance, light_distance, -light_distance).looking_at(-Vec3::Y, Vec3::Z),
     ));
 
-
-    let color_step = 1.0 / CUBE_AXIS_AMOUNT as f32;
+    // let color_step = 1.0 / CUBE_AXIS_AMOUNT as f32;
 
     // Cubes
     for i in 0..CUBE_AXIS_AMOUNT {
@@ -137,14 +136,14 @@ fn setup(
                         half_size: Vec3::new(cube_half_size, cube_half_size, cube_half_size),
                     })),
                     MeshMaterial3d(materials.add(Color::from(
-                        // css::SKY_BLUE
+                        css::SKY_BLUE
 
-                        Srgba {
-                        red: i as f32 * color_step,
-                        green: j as f32 * color_step,
-                        blue: k as f32 * color_step,
-                        alpha: 1.0,
-                    }
+                    //     Srgba {
+                    //     red: i as f32 * color_step,
+                    //     green: j as f32 * color_step,
+                    //     blue: k as f32 * color_step,
+                    //     alpha: 1.0,
+                    // }
                 ))),
                     Transform::from_xyz(
                         i as f32 + cube_half_size - (CUBE_AXIS_AMOUNT as f32 / 2.0),
