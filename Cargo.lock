@@ -305,7 +305,6 @@ dependencies = [
  "indexmap",
  "itertools",
  "nalgebra",
- "parry3d",
  "parry3d-f64",
 ]
 
@@ -3275,33 +3274,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "parry3d"
-version = "0.17.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfe2c6103af4dbaa10469f2929aab8f11c33bd4647ae525174c23a3ecabf7207"
-dependencies = [
- "approx",
- "arrayvec",
- "bitflags 2.6.0",
- "downcast-rs",
- "either",
- "ena",
- "log",
- "nalgebra",
- "num-derive",
- "num-traits",
- "ordered-float",
- "rayon",
- "rstar",
- "rustc-hash 2.1.0",
- "simba",
- "slab",
- "smallvec",
- "spade",
- "thiserror",
-]
-
-[[package]]
 name = "parry3d-f64"
 version = "0.17.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3318,7 +3290,6 @@ dependencies = [
  "num-derive",
  "num-traits",
  "ordered-float",
- "rayon",
  "rstar",
  "rustc-hash 2.1.0",
  "simba",

@@ -2,13 +2,7 @@ use std::time::Duration;
 
 use avian3d::prelude::*;
 use bevy::{
-    asset::RenderAssetUsages,
-    color::palettes::css,
-    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    prelude::*,
-    render::render_resource::{Extent3d, TextureDimension, TextureFormat},
-    window::PresentMode,
-    winit::{UpdateMode, WinitSettings},
+    asset::RenderAssetUsages, color::palettes::css, diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin}, math::DVec3, prelude::*, render::render_resource::{Extent3d, TextureDimension, TextureFormat}, window::PresentMode, winit::{UpdateMode, WinitSettings}
 };
 
 // Amount of cubes to spawn (^3)
@@ -21,20 +15,20 @@ const PHYSICS_HZ: f64 = 60.0;
 const FLOOR_RADIUS: f32 = 100.0;
 
 // Player Controller
-const MOVEMENT_SPEED: f32 = 10.;
-const ROTATE_SPEED: f32 = 0.05;
-const JUMP_SPEED: f32 = 75.0;
-const GROUND_DISTANCE: f32 = 1.01;
-const JUMP_COOLDOWN: f32 = 0.1;
+const MOVEMENT_SPEED: f64 = 10.;
+const ROTATE_SPEED: f64 = 0.05;
+const JUMP_SPEED: f64 = 75.0;
+const GROUND_DISTANCE: f64 = 1.01;
+const JUMP_COOLDOWN: f64 = 0.1;
 
 
 #[derive(Component, Debug)]
 pub struct Velocity {
-    pub value: Vec3,
+    pub value: DVec3,
 }
 
 impl Velocity {
-    pub fn new(value: Vec3) -> Self {
+    pub fn new(value: DVec3) -> Self {
         Self { value }
     }
 }
@@ -104,7 +98,7 @@ fn setup(
     // Floor
     commands.spawn((
         RigidBody::Static,
-        Collider::cylinder(FLOOR_RADIUS, 0.1),
+        Collider::cylinder(FLOOR_RADIUS as f64, 0.1),
         (
             Mesh3d(meshes.add(Cylinder::new(FLOOR_RADIUS, 0.1))),
             MeshMaterial3d(debug_material.clone()),
@@ -153,7 +147,7 @@ fn setup(
                     RigidBody::Dynamic,
                     Mass(1.0),
                     Friction::new(0.9),
-                    Collider::cuboid(cube_size, cube_size, cube_size),
+                    Collider::cuboid(cube_size as f64, cube_size as f64, cube_size as f64),
                 ));
             }
         }
@@ -169,14 +163,14 @@ fn setup(
             MeshMaterial3d(materials.add(Color::from(css::LIGHT_GREEN))),
             Transform::from_xyz(0.0, 2.0, 0.0),
             RigidBody::Dynamic,
-            Collider::capsule(capsule_radius, capsule_length),
+            Collider::capsule(capsule_radius as f64, capsule_length as f64),
             Mass(10.0),
             GravityScale(2.0),
             ExternalImpulse::default(),
             LockedAxes::ROTATION_LOCKED,
             PlayerController {
-                velocity: Velocity::new(Vec3::ZERO),
-                jump_timer: Timer::new(Duration::from_secs_f32(JUMP_COOLDOWN), TimerMode::Once),
+                velocity: Velocity::new(DVec3::ZERO),
+                jump_timer: Timer::new(Duration::from_secs_f64(JUMP_COOLDOWN), TimerMode::Once),
                 is_on_ground: false,
             },
         ))
@@ -207,7 +201,7 @@ fn setup(
     //Raycaster and Query Filter
     let query_filter = SpatialQueryFilter::from_mask(0b1011).with_excluded_entities([player]);
     let child_raycaster = commands
-        .spawn(RayCaster::new(Vec3::ZERO, -Dir3::Y).with_query_filter(query_filter))
+        .spawn(RayCaster::new(DVec3::ZERO, -Dir3::Y).with_query_filter(query_filter))
         .id();
 
     //Add Children to Player
@@ -252,7 +246,7 @@ fn movement_controls(
     let mut forward_movement = 0.0;
     let mut side_movement = 0.0;
     let mut upward_movement = 0.0;
-    let mut h_vel: Vec3;
+    let mut h_vel: DVec3;
 
     let Ok((mut transform, mut player_controller)) = query.get_single_mut() else {
         println!("Could not query!");
@@ -277,10 +271,10 @@ fn movement_controls(
         side_movement = -1.0;
     }
     if keyboard.pressed(KeyCode::KeyA) {
-        transform.rotate_y(ROTATE_SPEED);
+        transform.rotate_y(ROTATE_SPEED as f32);
     }
     if keyboard.pressed(KeyCode::KeyD) {
-        transform.rotate_y(-ROTATE_SPEED);
+        transform.rotate_y(-ROTATE_SPEED as f32);
     }
     if keyboard.pressed(KeyCode::Space) {
         if !(player_controller.jump_timer.remaining() > Duration::ZERO)
@@ -292,8 +286,8 @@ fn movement_controls(
     }
 
     // Normalize horizontal movement
-    h_vel = (-transform.forward() * forward_movement) + (-transform.left() * side_movement);
-    if !is_near_zero(forward_movement) || !is_near_zero(side_movement) {
+    h_vel = ((-transform.forward() * forward_movement) + (-transform.left() * side_movement)).into();
+    if !is_approx_zero(forward_movement) || !is_approx_zero(side_movement) {
         h_vel = MOVEMENT_SPEED * h_vel.normalize();
     }
 
@@ -317,12 +311,12 @@ fn apply_impulses(
     mut query: Query<(&mut ExternalImpulse, &PlayerController), With<PlayerController>>,
 ) {
     for (mut external_impulse, player_controller) in query.iter_mut() {
-        let vel = player_controller.velocity.value.y;
-        external_impulse.apply_impulse(Vec3::Y * vel);
+        let vel: f64 = player_controller.velocity.value.y as f64;
+        external_impulse.apply_impulse(DVec3::Y * vel);
     }
 }
 
-fn is_near_zero(value: f32) -> bool {
+fn is_approx_zero(value: f32) -> bool {
     value > -0.001 && value < 0.001
 }
 
